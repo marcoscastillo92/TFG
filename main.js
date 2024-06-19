@@ -163,6 +163,16 @@ function createBoard() {
  */
 document.addEventListener('DOMContentLoaded', () => {
 	createBoard();
+	document.querySelector('#mode').addEventListener('change', (e) => {
+		const mode = e.target.checked;
+		if (!mode) {
+			document.querySelector('.editor-panel').classList.remove('hide');
+			document.querySelector('.canvas').classList.add('hide');
+		} else {
+			document.querySelector('.editor-panel').classList.add('hide');
+			document.querySelector('.canvas').classList.remove('hide');
+		}
+	});
 	Object.values(SIGN_TEXTURES).forEach((filename) => {
 		const img = document.createElement('img');
 		img.draggable = true;
