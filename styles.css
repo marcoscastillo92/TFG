@@ -1,0 +1,148 @@
+body { 
+  margin: 0;
+  background-color: gray;
+}
+.switch-wrapper {
+  margin-bottom: 10px;
+}
+.editor-panel {
+  display: grid;
+  height: 90vh;
+  width: 80%;
+  margin: 0% 5%;
+}
+.drag-over {
+  border: dashed 3px red !important;
+}
+.cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  img {
+    max-width: 100%;
+  }
+}
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  height: 98vh;
+  width: 20%;
+  padding: 0 2rem 0 0;
+
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+.section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.canvas {
+  background: url(models/textures/skybox.jpg) no-repeat center center;
+}
+.btn {
+  border: none;
+  background-color: #f1f1f1;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #e1e1e1;
+  }
+}
+.transforms {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.settings {
+  margin-top: .5rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+h4 {
+  margin-block-end: 0;
+  border-bottom: 2px solid black;
+}
+h5 {
+  margin-block-end: 0;
+  margin-block-start: 0;
+}
+#gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+  background-color: #ffffff;
+  overflow-y: auto;
+  height: 300px;
+
+  img {
+    width: 64px;
+    transform: rotate(180deg) scaleX(-1);
+    &[data-type="vehicle"] {
+      transform: none;
+    }
+  }
+}
+.hide {
+  display: none;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 34px;
+  height: 34px;
+  &:before {
+    border-radius: 50%;
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+  &:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
