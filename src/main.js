@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import WebGL from 'three/addons/capabilities/WebGL.js';
-import SIGN_TEXTURES from './sign_textures.js';
-import ROAD_TEXTURES from './road_textures.js';
-import VEHICLES from './models/vehicles.js';
+import SIGN_TEXTURES from './constants/sign_textures.js';
+import ROAD_TEXTURES from './constants/road_textures.js';
+import VEHICLES from './constants/vehicles.js';
 
 let selectedObject = null;
 let previousMaterialColor = '';
@@ -88,28 +88,6 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
 	return lines;
 }
 
-function createVehicleObject(vehicle) {
-	gltfLoader.load(
-		`models/vehicles/${vehicle}/${vehicle}.gltf`,
-		(gltf) => {
-			const vehicleNode = gltf.scene.getObjectByName('RootNode');
-			console.log(dumpObject(vehicleNode).join('\n'));
-			vehicleNode.isVehicle = true;
-			vehicleNode.isDraggable = true;
-			vehicleNode.position.set(0, 0, 0);
-			const scale = vehicle === 'ElectricScooter' ? 1.6 : 0.25;
-			vehicleNode.scale.set(scale, scale, scale);
-			scene.add(vehicleNode);
-			selectObject(vehicleNode);
-			allowMovement = true;
-		},
-		undefined,
-		(error) => {
-			console.error(error);
-		}
-	);
-}
-
 /**
  * Logicals listeners for UI
  */
@@ -117,18 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	Object.values(SIGN_TEXTURES).forEach((filename) => {
 		const img = document.createElement('img');
 		img.draggable = true;
-		img.src = `models/textures/${filename}`;
+		img.src = `/src/textures/${filename}`;
 		img.alt = filename;
 		img.dataset.type = 'sign';
-		img.addEventListener('dragstart', (e) => {
-			e.dataTransfer.setData('type', 'sign');
-			e.dataTransfer.setData('texture', `models/textures/${filename}`);
-			e.dataTransfer.setData('alt', filename);
-		});
 		img.addEventListener('click', () => {
 			const geometry = new THREE.CylinderGeometry(1, 1, 0.1);
 			const texture = new THREE.TextureLoader().load(
-				`models/textures/${filename}`
+				`/src/textures/${filename}`
 			);
 			geometry.lookAt(new THREE.Vector3(0, 1, 0));
 			texture.colorSpace = THREE.SRGBColorSpace;
@@ -155,14 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 	Object.values(ROAD_TEXTURES).forEach((filename) => {
 		const img = document.createElement('img');
-		img.src = `models/textures/${filename}.jpg`;
+		img.src = `/src/textures/${filename}.jpg`;
 		img.alt = filename;
 		img.dataset.type = 'road';
-		img.addEventListener('dragstart', (e) => {
-			e.dataTransfer.setData('type', 'road');
-			e.dataTransfer.setData('texture', `models/textures/${filename}.jpg`);
-			e.dataTransfer.setData('alt', filename);
-		});
 		img.addEventListener('click', () => {
 			const road = createTexturedRoadObject(filename);
 			scene.add(road);
@@ -173,14 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 	Object.keys(VEHICLES).forEach((key) => {
 		const img = document.createElement('img');
-		img.src = `static/vehicle_icons/${key}.png`;
+		img.src = `/assets/vehicle_icons/${key}.png`;
 		img.alt = key;
 		img.dataset.type = 'vehicle';
-		img.addEventListener('dragstart', (e) => {
-			e.dataTransfer.setData('type', 'vehicle');
-			e.dataTransfer.setData('texture', `static/vehicle_icons/${key}.png`);
-			e.dataTransfer.setData('alt', key);
-		});
 		img.addEventListener('click', () => {
 			const vehicle = createVehicleObject(key);
 			scene.add(vehicle);
@@ -400,11 +363,31 @@ document.querySelector('.canvas').addEventListener('click', (e) => {
  * End of logical listeners
  */
 
+function createVehicleObject(vehicle) {
+	gltfLoader.load(
+		`/src/models/vehicles/${vehicle}/${vehicle}.gltf`,
+		(gltf) => {
+			const vehicleNode = gltf.scene.getObjectByName('RootNode');
+			console.log(dumpObject(vehicleNode).join('\n'));
+			vehicleNode.isVehicle = true;
+			vehicleNode.isDraggable = true;
+			vehicleNode.position.set(0, 0, 0);
+			const scale = vehicle === 'ElectricScooter' ? 1.6 : 0.25;
+			vehicleNode.scale.set(scale, scale, scale);
+			scene.add(vehicleNode);
+			selectObject(vehicleNode);
+			allowMovement = true;
+		},
+		undefined,
+		(error) => {
+			console.error(error);
+		}
+	);
+}
+
 function setInitialScene() {
 	const geometry = new THREE.PlaneGeometry(20, 20);
-	const texture = new THREE.TextureLoader().load(
-		'models/textures/concrete.jpg'
-	);
+	const texture = new THREE.TextureLoader().load('/src/textures/concrete.jpg');
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set(10, 10);
@@ -427,7 +410,7 @@ function addCube() {
 function createTexturedRoadObject(textureSelected) {
 	const geometry = new THREE.BoxGeometry(1, 0.1, 1);
 	const texture = new THREE.TextureLoader().load(
-		`models/textures/${textureSelected}.jpg`
+		`/src/textures/${textureSelected}.jpg`
 	);
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
