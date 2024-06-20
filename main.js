@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import WebGL from 'three/addons/capabilities/WebGL.js';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import SIGN_TEXTURES from './sign_textures.js';
 import ROAD_TEXTURES from './road_textures.js';
 import VEHICLES from './models/vehicles.js';
@@ -27,9 +26,6 @@ const light = new THREE.AmbientLight(0xffffff, 1);
 const controls = new OrbitControls(camera, renderer.domElement);
 const gltfLoader = new GLTFLoader();
 
-const transformControls = new TransformControls(camera, renderer.domElement);
-transformControls.showY = false;
-scene.add(transformControls);
 scene.add(gridHelper);
 scene.add(axesHelper);
 axesHelper.visible = false;
@@ -37,10 +33,6 @@ renderer.setSize(width, height);
 document.querySelector('.canvas').appendChild(renderer.domElement);
 scene.add(light);
 camera.position.set(0, 5, 10);
-
-transformControls.addEventListener('dragging-changed', function (event) {
-	controls.enabled = !event.value;
-});
 
 window.addEventListener('resize', () => {
 	camera.updateProjectionMatrix();
@@ -51,7 +43,6 @@ function resetSelectedObject() {
 	if (selectedObject) {
 		selectedObject.material?.color?.setHex(previousMaterialColor);
 		selectedObject = null;
-		transformControls.detach();
 		previousMaterialColor = '';
 		updateObjectInfo({ rotation: { y: 0 }, position: { x: 0, y: 0, z: 0 } });
 	}
@@ -61,9 +52,6 @@ function selectObject(object) {
 	if (!object) return;
 	resetSelectedObject();
 	selectedObject = object;
-	if (selectObject.isVehicle) {
-		transformControls.attach(selectedObject);
-	}
 	previousMaterialColor = object.material?.color?.getHex();
 	object.material?.color?.setHex('0xFFDE59');
 	updateObjectInfo(object);
