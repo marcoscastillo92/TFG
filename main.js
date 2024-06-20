@@ -7,16 +7,13 @@ import SIGN_TEXTURES from './sign_textures.js';
 import ROAD_TEXTURES from './road_textures.js';
 import VEHICLES from './models/vehicles.js';
 
-const ROWS = 20;
-const COLUMNS = 20;
-const BOARD = Array.from({ length: ROWS });
-
 let selectedObject = null;
 let previousMaterialColor = '';
 let zenitalView = false;
 let allowMovement = false;
 let movementStep = 0.5;
 let rotateStep = 45;
+
 const NON_SELECTABLE_NAME_OBJECTS = ['ground'];
 const mouse = new THREE.Vector2();
 const width = window.innerWidth * 0.8;
@@ -49,6 +46,37 @@ window.addEventListener('resize', () => {
 	camera.updateProjectionMatrix();
 	renderer.setSize(width, height);
 });
+
+function resetSelectedObject() {
+	if (selectedObject) {
+		selectedObject.material?.color?.setHex(previousMaterialColor);
+		selectedObject = null;
+		transformControls.detach();
+		previousMaterialColor = '';
+		updateObjectInfo({ rotation: { y: 0 }, position: { x: 0, y: 0, z: 0 } });
+	}
+}
+
+function selectObject(object) {
+	if (!object) return;
+	resetSelectedObject();
+	selectedObject = object;
+	if (selectObject.isVehicle) {
+		transformControls.attach(selectedObject);
+	}
+	previousMaterialColor = object.material?.color?.getHex();
+	object.material?.color?.setHex('0xFFDE59');
+	updateObjectInfo(object);
+}
+
+function updateObjectInfo(object) {
+	document.querySelector('#rotate-number').value =
+		object.rotation.y * (180 / Math.PI);
+	document.querySelector('#rotate').value = object.rotation.y * (180 / Math.PI);
+	document.querySelector('#position-x').value = object.position.x;
+	document.querySelector('#position-y').value = object.position.y;
+	document.querySelector('#position-z').value = object.position.z;
+}
 
 function flipSelectedTexture() {
 	if (!selectedObject) return;
@@ -94,85 +122,10 @@ function createVehicleObject(vehicle) {
 	);
 }
 
-function updateBoardInfo(e) {
-	let element = e.target;
-	if (element.tagName !== 'DIV') {
-		element = e.target.parentElement;
-	}
-	const row = element.dataset.row;
-	const column = element.dataset.column;
-	const type = e.dataTransfer.getData('type');
-	if (BOARD[row] === undefined) {
-		BOARD[row] = Array.from({ length: COLUMNS });
-		BOARD[row][column] = [];
-	}
-	const typeExists = BOARD[row][column].filter((child) => child.type === type);
-	if (typeExists.length === 0) {
-		BOARD[row][column].push({ type, rotation: 0 });
-	}
-	console.log(BOARD[row][column]);
-}
-
-function createBoard() {
-	const board = document.querySelector('.editor-panel');
-	board.style.gridTemplateColumns = `repeat(${COLUMNS}, 1fr)`;
-	board.style.gridTemplateRows = `repeat(${ROWS}, 1fr)`;
-	for (let i = 0; i < ROWS * COLUMNS; i++) {
-		const divElement = document.createElement('div');
-		divElement.classList.add('cell');
-		divElement.dataset.row = Math.floor(i / COLUMNS);
-		divElement.dataset.column = i % COLUMNS;
-		divElement.addEventListener('dragover', (e) => {
-			e.preventDefault();
-			e.target.classList.add('drag-over');
-		});
-		divElement.addEventListener('dragleave', (e) => {
-			e.preventDefault();
-			e.target.classList.remove('drag-over');
-		});
-		divElement.addEventListener('drop', (e) => {
-			e.preventDefault();
-			let element = e.target;
-			if (element.tagName !== 'DIV') {
-				element = e.target.parentElement;
-			}
-			element.classList.remove('drag-over');
-			const type = e.dataTransfer.getData('type');
-			const texture = e.dataTransfer.getData('texture');
-			const img = document.createElement('img');
-			img.src = texture;
-			img.alt = texture;
-			if (type !== 'vehicle') {
-				img.style.transform = 'rotate(-180deg) scaleX(-1)';
-			} else {
-				img.style.transform = 'rotate(90deg)';
-			}
-			img.dataset.type = type;
-			img.addEventListener('click', (e) => {
-				delete e.target;
-			});
-			element.appendChild(img);
-			updateBoardInfo(e);
-		});
-		board.appendChild(divElement);
-	}
-}
-
 /**
  * Logicals listeners for UI
  */
 document.addEventListener('DOMContentLoaded', () => {
-	createBoard();
-	document.querySelector('#mode').addEventListener('change', (e) => {
-		const mode = e.target.checked;
-		if (!mode) {
-			document.querySelector('.editor-panel').classList.remove('hide');
-			document.querySelector('.canvas').classList.add('hide');
-		} else {
-			document.querySelector('.editor-panel').classList.add('hide');
-			document.querySelector('.canvas').classList.remove('hide');
-		}
-	});
 	Object.values(SIGN_TEXTURES).forEach((filename) => {
 		const img = document.createElement('img');
 		img.draggable = true;
@@ -455,37 +408,6 @@ document.querySelector('.canvas').addEventListener('click', (e) => {
 	}
 	selectObject(selected);
 });
-
-function resetSelectedObject() {
-	if (selectedObject) {
-		selectedObject.material?.color?.setHex(previousMaterialColor);
-		selectedObject = null;
-		transformControls.detach();
-		previousMaterialColor = '';
-		updateObjectInfo({ rotation: { y: 0 }, position: { x: 0, y: 0, z: 0 } });
-	}
-}
-
-function selectObject(object) {
-	if (!object) return;
-	resetSelectedObject();
-	selectedObject = object;
-	if (selectObject.isVehicle) {
-		transformControls.attach(selectedObject);
-	}
-	previousMaterialColor = object.material?.color?.getHex();
-	object.material?.color?.setHex('0xFFDE59');
-	updateObjectInfo(object);
-}
-
-function updateObjectInfo(object) {
-	document.querySelector('#rotate-number').value =
-		object.rotation.y * (180 / Math.PI);
-	document.querySelector('#rotate').value = object.rotation.y * (180 / Math.PI);
-	document.querySelector('#position-x').value = object.position.x;
-	document.querySelector('#position-y').value = object.position.y;
-	document.querySelector('#position-z').value = object.position.z;
-}
 /**
  * End of logical listeners
  */
@@ -504,6 +426,14 @@ function setInitialScene() {
 	plane.position.set(0, -0.01, 0);
 	plane.name = 'ground';
 	scene.add(plane);
+	addCube();
+}
+function addCube() {
+	const geometry = new THREE.BoxGeometry();
+	const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+	const cube = new THREE.Mesh(geometry, material);
+	cube.position.set(0, 0, 0);
+	scene.add(cube);
 }
 
 function createTexturedRoadObject(textureSelected) {
