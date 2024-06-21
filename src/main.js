@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import VehicleFactory from './components/vehicleFactory.js';
+import SignFactory from './components/signFactory.js';
+import RoadFactory from './components/roadFactory.js';
 import WebGL from 'three/addons/capabilities/WebGL.js';
 import SIGN_TEXTURES from './constants/sign_textures.js';
 import ROAD_TEXTURES from './constants/road_textures.js';
@@ -24,7 +27,6 @@ const axesHelper = new THREE.AxesHelper(5);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 const light = new THREE.AmbientLight(0xffffff, 1);
 const controls = new OrbitControls(camera, renderer.domElement);
-const gltfLoader = new GLTFLoader();
 
 scene.add(gridHelper);
 scene.add(axesHelper);
@@ -42,8 +44,11 @@ window.addEventListener('resize', () => {
 function resetSelectedObject() {
 	if (selectedObject) {
 		selectedObject.material?.color?.setHex(previousMaterialColor);
-		selectedObject = null;
 		previousMaterialColor = '';
+		if (selectedObject.isVehicle) {
+			selectedObject.material.opacity = 0.0;
+		}
+		selectedObject = null;
 		updateObjectInfo({ rotation: { y: 0 }, position: { x: 0, y: 0, z: 0 } });
 	}
 }
@@ -54,6 +59,9 @@ function selectObject(object) {
 	selectedObject = object;
 	previousMaterialColor = object.material?.color?.getHex();
 	object.material?.color?.setHex('0xFFDE59');
+	if (object.isVehicle) {
+		object.material.opacity = 0.5;
+	}
 	updateObjectInfo(object);
 }
 
@@ -72,22 +80,6 @@ function flipSelectedTexture() {
 		selectedObject.material.map.repeat.x > 0 ? -1 : 1;
 }
 
-function dumpObject(obj, lines = [], isLast = true, prefix = '') {
-	const localPrefix = isLast ? '└─' : '├─';
-	lines.push(
-		`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${
-			obj.type
-		}]`
-	);
-	const newPrefix = prefix + (isLast ? '  ' : '│ ');
-	const lastNdx = obj.children.length - 1;
-	obj.children.forEach((child, ndx) => {
-		const isLast = ndx === lastNdx;
-		dumpObject(child, lines, isLast, newPrefix);
-	});
-	return lines;
-}
-
 /**
  * Logicals listeners for UI
  */
@@ -99,27 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		img.alt = filename;
 		img.dataset.type = 'sign';
 		img.addEventListener('click', () => {
-			const geometry = new THREE.CylinderGeometry(1, 1, 0.1);
-			const texture = new THREE.TextureLoader().load(
-				`/src/textures/${filename}`
-			);
-			geometry.lookAt(new THREE.Vector3(0, 1, 0));
-			texture.colorSpace = THREE.SRGBColorSpace;
-			texture.flipY = false;
-			texture.center.set(0.5, 0.5);
-			texture.rotation = -(90 * Math.PI) / 180;
-			const material = new THREE.MeshBasicMaterial({
-				map: texture
-			});
-			const sign = new THREE.Mesh(geometry, material);
-			sign.position.set(0, 0.75, 0);
-			sign.isDraggable = true;
-			sign.scale.set(0.25, 0.25, 0.25);
-			const poleGeometry = new THREE.CylinderGeometry(0.1, 0.1, 2);
-			const poleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-			const pole = new THREE.Mesh(poleGeometry, poleMaterial);
-			pole.position.set(0, -2, 0);
-			sign.add(pole);
+			const sign = SignFactory.createSign(filename);
 			scene.add(sign);
 			selectObject(sign);
 			allowMovement = true;
@@ -132,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		img.alt = filename;
 		img.dataset.type = 'road';
 		img.addEventListener('click', () => {
-			const road = createTexturedRoadObject(filename);
+			const road = RoadFactory.createRoad(filename);
 			scene.add(road);
 			selectObject(road);
 			allowMovement = true;
@@ -145,10 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		img.alt = key;
 		img.dataset.type = 'vehicle';
 		img.addEventListener('click', () => {
-			const vehicle = createVehicleObject(key);
-			scene.add(vehicle);
-			selectObject(vehicle);
-			allowMovement = true;
+			VehicleFactory.createVehicle(key).then((vehicle) => {
+				scene.add(vehicle);
+				selectObject(vehicle);
+				allowMovement = true;
+			});
 		});
 		document.querySelector('#gallery').appendChild(img);
 	});
@@ -363,29 +336,7 @@ document.querySelector('.canvas').addEventListener('click', (e) => {
  * End of logical listeners
  */
 
-function createVehicleObject(vehicle) {
-	gltfLoader.load(
-		`/src/models/vehicles/${vehicle}/${vehicle}.gltf`,
-		(gltf) => {
-			const vehicleNode = gltf.scene.getObjectByName('RootNode');
-			console.log(dumpObject(vehicleNode).join('\n'));
-			vehicleNode.isVehicle = true;
-			vehicleNode.isDraggable = true;
-			vehicleNode.position.set(0, 0, 0);
-			const scale = vehicle === 'ElectricScooter' ? 1.6 : 0.25;
-			vehicleNode.scale.set(scale, scale, scale);
-			scene.add(vehicleNode);
-			selectObject(vehicleNode);
-			allowMovement = true;
-		},
-		undefined,
-		(error) => {
-			console.error(error);
-		}
-	);
-}
-
-function setInitialScene() {
+function createInitialGround() {
 	const geometry = new THREE.PlaneGeometry(20, 20);
 	const texture = new THREE.TextureLoader().load('/src/textures/concrete.jpg');
 	texture.wrapS = THREE.RepeatWrapping;
@@ -397,32 +348,13 @@ function setInitialScene() {
 	plane.position.set(0, -0.01, 0);
 	plane.name = 'ground';
 	scene.add(plane);
-	addCube();
-}
-function addCube() {
-	const geometry = new THREE.BoxGeometry();
-	const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-	const cube = new THREE.Mesh(geometry, material);
-	cube.position.set(0, 0, 0);
-	scene.add(cube);
+	VehicleFactory.createVehicle('Ambulance').then((vehicle) => {
+		scene.add(vehicle);
+	});
+	// scene.add(ambulance);
 }
 
-function createTexturedRoadObject(textureSelected) {
-	const geometry = new THREE.BoxGeometry(1, 0.1, 1);
-	const texture = new THREE.TextureLoader().load(
-		`/src/textures/${textureSelected}.jpg`
-	);
-	texture.wrapS = THREE.RepeatWrapping;
-	texture.wrapT = THREE.RepeatWrapping;
-	texture.repeat.set(1, 1);
-	const material = new THREE.MeshBasicMaterial({ map: texture });
-	const road = new THREE.Mesh(geometry, material);
-	road.position.set(0, 0, 0);
-	road.isDraggable = true;
-	return road;
-}
-
-setInitialScene();
+createInitialGround();
 
 const animate = function () {
 	requestAnimationFrame(animate);
