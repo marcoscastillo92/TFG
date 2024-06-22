@@ -23,7 +23,7 @@ body {
   height: 100vh;
 }
 .canvas {
-  background: url(models/textures/skybox.jpg) no-repeat center center;
+  background: url(/src/textures/skybox.jpg) no-repeat center center;
 }
 .btn {
   border: none;
@@ -67,6 +67,12 @@ h5 {
     width: 64px;
     transform: rotate(180deg) scaleX(-1);
     &[data-type="vehicle"] {
+      transform: none;
+    }
+    &[data-type="people"] {
+      transform: none;
+    }
+    &[data-type="environment"] {
       transform: none;
     }
   }
