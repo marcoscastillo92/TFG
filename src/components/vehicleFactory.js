@@ -53,17 +53,6 @@ function getRotationByType(type) {
 function getBoxPositionByType(type) {
 	const scale = getBoxScaleByType(type);
 	return new THREE.Vector3(0, scale.y / 2, 0);
-	// switch (type) {
-	// 	case 'Bus':
-	// 	case 'TruckTrailer':
-	// 		return new THREE.Vector3(0, scale.y / 2, 0);
-	// 	case 'ElectricScooter':
-	// 	case 'Bicycle':
-	// 	case 'Motorbike':
-	// 		return new THREE.Vector3(0, scale.y / 2, 0);
-	// 	default:
-	// 		return new THREE.Vector3(0, scale.y / 2, 0);
-	// }
 }
 
 class VehicleFactory {
@@ -90,6 +79,7 @@ class VehicleFactory {
 		});
 		cubeMaterial.transparent = true;
 		const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+		cube.name = vehicle;
 		cube.isVehicle = true;
 		cube.isTransparent = true;
 		cube.isDraggable = true;

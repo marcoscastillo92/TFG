@@ -62,8 +62,46 @@ function flipSelectedTexture() {
 		selectedObject.material.map.repeat.x > 0 ? -1 : 1;
 }
 
+function changeVehicleColor(child, name, event) {
+	if (
+		child.name !== name ||
+		![
+			'Sedan',
+			'SUV',
+			'Pickup',
+			'Truck_with_trailer',
+			'Group_008',
+			'bicycle'
+		].includes(name)
+	) {
+		return;
+	}
+	const mainMesh = name === 'bicycle' ? 'Cylinder' : '_1';
+	child.children.forEach((part) => {
+		if (part.type === 'Mesh' && part.name.includes(mainMesh)) {
+			part.material.color.set(event.target.value);
+		}
+	});
+}
+
 function addListeners(scene, camera, gridHelper) {
 	document.addEventListener('DOMContentLoaded', () => {
+		document
+			.querySelector('#vehicle-color')
+			.addEventListener('change', (event) => {
+				if (!selectedObject && !selectedObject.isVehicle) return;
+				let name = selectedObject.name;
+				if (name === 'TruckTrailer') {
+					name = 'Truck_with_trailer';
+				} else if (name === 'Motorbike') {
+					name = 'Group_008';
+				} else if (name === 'Bicycle') {
+					name = 'bicycle';
+				}
+				selectedObject.children[0].children.forEach((child) => {
+					changeVehicleColor(child, name, event);
+				});
+			});
 		Object.values(SIGN_TEXTURES).forEach((filename) => {
 			const img = document.createElement('img');
 			img.draggable = true;
@@ -143,9 +181,14 @@ function addListeners(scene, camera, gridHelper) {
 			const reader = new FileReader();
 			reader.onload = (e) => {
 				const json = JSON.parse(e.target.result);
-				const loader = new GLTFLoader();
-				loader.parse(json, '', (gltf) => {
-					scene.add(gltf.scene);
+				const loadedScene = new THREE.ObjectLoader().parse(json);
+				scene.children.forEach((child) => {
+					if (child.type === 'Object3D') {
+						scene.remove(child);
+					}
+				});
+				loadedScene.children.forEach((child) => {
+					scene.add(child);
 				});
 			};
 			reader.readAsText(file);

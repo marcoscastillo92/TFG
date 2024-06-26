@@ -13,6 +13,7 @@ class RoadFactory {
 		const road = new THREE.Mesh(geometry, material);
 		road.position.set(0, 0, 0);
 		road.isDraggable = true;
+		road.name = textureSelected;
 		return road;
 	}
 }

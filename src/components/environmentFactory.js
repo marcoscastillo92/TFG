@@ -59,6 +59,7 @@ class EnvironmentFactory {
 		cube.isDraggable = true;
 		const cubePosition = getBoxPositionByType(key);
 		cube.position.set(cubePosition.x, cubePosition.y, cubePosition.z);
+		cube.name = key;
 		cube.add(objectNode);
 		return cube;
 	}

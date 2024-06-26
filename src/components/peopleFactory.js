@@ -22,6 +22,7 @@ class PeopleFactory {
 		cube.isTransparent = true;
 		cube.isDraggable = true;
 		cube.position.set(0, 0.3, 0);
+		cube.name = people;
 		cube.add(peopleNode);
 		return cube;
 	}

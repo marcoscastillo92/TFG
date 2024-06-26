@@ -20,6 +20,7 @@ class SignFactory {
 		const poleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 		const pole = new THREE.Mesh(poleGeometry, poleMaterial);
 		pole.position.set(0, -2, 0);
+		sign.name = filename;
 		sign.add(pole);
 		return sign;
 	}
