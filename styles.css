@@ -8,7 +8,7 @@ body {
   align-items: start;
   height: 98vh;
   width: 20%;
-  padding: 0 2rem 0 0;
+  padding: 0 2rem 0 1rem;
 
   .buttons {
     display: grid;
