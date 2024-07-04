@@ -7,15 +7,16 @@
 	</head>
 	<body>
 		<section class="section">
-			<article class="canvas"></article>
+			<canvas class="canvas"></canvas>
 			<article class="menu">
 				<div class="buttons">
 					<button id="load" class="btn">Load</button>
 					<button id="export" class="btn">Export</button>
+					<button id="screenshot" class="btn">Screenshot</button>
 				</div>
 				<div class="transforms">
 					<h4>Transforms</h4>
-					<h5>Rotation </h5><button id="reset-rotation" class="btn">Reset</button>
+					<h5>Rotation </h5>
 					<div class="rotation-controls">
 						<label for="rotation-x">X: </label>
 						<input id="rotation-x" type="checkbox">
@@ -28,8 +29,9 @@
 						<input id="rotate-step" title="Rotation step" type="number" min="0" max="360" value="45">
 						<button id="rotate-left" class="btn">Rotate left</button>
 						<button id="rotate-right" class="btn">Rotate right</button>
+						<button id="reset-rotation" class="btn btn-reset">Reset</button>
 					</div>
-					<h5>Position</h5><button id="reset-position" class="btn">Reset</button>
+					<h5>Position</h5>
 					<div>
 						<label for="position-x">X: </label>
 						<input id="position-x" type="number" min="-100" max="100" value="0">
@@ -37,6 +39,7 @@
 						<input id="position-y" type="number" min="-100" max="100" value="0" disabled>
 						<label for="position-z">Z: </label>
 						<input id="position-z" type="number" min="-100" max="100" value="0">
+						<button id="reset-position" class="btn btn-reset">Reset</button>
 					</div>
 				</div>
 				<div class="settings">

@@ -2,6 +2,10 @@ body {
   margin: 0;
   background-color: gray;
 }
+.btn-reset {
+  width: fit-content;
+  margin-left: 10px;
+}
 .menu {
   display: flex;
   flex-direction: column;
@@ -24,6 +28,8 @@ body {
 }
 .canvas {
   background: url(/src/textures/skybox.jpg) no-repeat center center;
+  width: 80%;
+  height: 100%;
 }
 .btn {
   border: none;

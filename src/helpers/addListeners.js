@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import SignFactory from '../components/signFactory.js';
 import RoadFactory from '../components/roadFactory.js';
 import VehicleFactory from '../components/vehicleFactory.js';
@@ -194,6 +193,22 @@ function addListeners(scene, camera, gridHelper) {
 			reader.readAsText(file);
 		});
 		input.click();
+	});
+	document.querySelector('#screenshot')?.addEventListener('click', () => {
+		const cav = document.querySelector('.canvas');
+		const base64 = cav.toDataURL('img/png');
+		var a = document.createElement('a');
+		a.href = base64;
+		const date = new Date();
+		const timestamp =
+			date.toLocaleDateString('en-ca').replaceAll('-', '') +
+			'_' +
+			date.getHours().toString() +
+			date.getMinutes().toString() +
+			date.getSeconds().toString() +
+			date.getMilliseconds().toString();
+		a.download = `atestator-${timestamp}.png`;
+		a.click();
 	});
 	document.querySelector('#export').addEventListener('click', () => {
 		scene.updateMatrixWorld();
