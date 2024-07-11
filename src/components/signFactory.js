@@ -21,6 +21,7 @@ class SignFactory {
 		const pole = new THREE.Mesh(poleGeometry, poleMaterial);
 		pole.position.set(0, -2, 0);
 		sign.name = filename;
+		sign.customType = 'Sign';
 		sign.add(pole);
 		return sign;
 	}

@@ -14,6 +14,7 @@ class RoadFactory {
 		road.position.set(0, 0, 0);
 		road.isDraggable = true;
 		road.name = textureSelected;
+		road.customType = 'Road';
 		return road;
 	}
 }

@@ -16,12 +16,9 @@ const renderer = new THREE.WebGLRenderer({
 	preserveDrawingBuffer: true,
 	canvas
 });
-const light = new THREE.AmbientLight(0xffffff, 1);
 const controls = new OrbitControls(camera, renderer.domElement);
 
-scene.add(gridHelper);
 renderer.setSize(width, height);
-scene.add(light);
 camera.position.set(0, 5, 10);
 
 window.addEventListener('resize', () => {
@@ -31,8 +28,8 @@ window.addEventListener('resize', () => {
 	renderer.setSize(width, height);
 });
 
+initScene(scene, gridHelper);
 addListeners(scene, camera, gridHelper);
-initScene(scene);
 
 function animate() {
 	requestAnimationFrame(animate);

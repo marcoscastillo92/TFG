@@ -60,6 +60,7 @@ class EnvironmentFactory {
 		const cubePosition = getBoxPositionByType(key);
 		cube.position.set(cubePosition.x, cubePosition.y, cubePosition.z);
 		cube.name = key;
+		cube.customType = 'Environment';
 		cube.add(objectNode);
 		return cube;
 	}

@@ -9,6 +9,7 @@ import ROAD_TEXTURES from '../constants/road_textures.js';
 import PEOPLE from '../constants/people.js';
 import ENVIRONMENT from '../constants/environment.js';
 import VEHICLES from '../constants/vehicles.js';
+import { initScene } from '../helpers/scene.js';
 
 let zenitalView = false;
 let allowMovement = false;
@@ -61,7 +62,7 @@ function flipSelectedTexture() {
 		selectedObject.material.map.repeat.x > 0 ? -1 : 1;
 }
 
-function changeVehicleColor(child, name, event) {
+function changeVehicleColor(child, name, hexColor) {
 	if (
 		child.name !== name ||
 		![
@@ -77,10 +78,21 @@ function changeVehicleColor(child, name, event) {
 	}
 	const mainMesh = name === 'bicycle' ? 'Cylinder' : '_1';
 	child.children.forEach((part) => {
-		if (part.type === 'Mesh' && part.name.includes(mainMesh)) {
-			part.material.color.set(event.target.value);
+		if (part.type === 'Mesh' && part.name.includes(mainMesh) && hexColor) {
+			part.material.color.set(hexColor);
 		}
 	});
+}
+
+function getNameForVehicleColor(name) {
+	if (name === 'TruckTrailer') {
+		return 'Truck_with_trailer';
+	} else if (name === 'Motorbike') {
+		return 'Group_008';
+	} else if (name === 'Bicycle') {
+		return 'bicycle';
+	}
+	return name;
 }
 
 function addListeners(scene, camera, gridHelper) {
@@ -89,16 +101,11 @@ function addListeners(scene, camera, gridHelper) {
 			.querySelector('#vehicle-color')
 			.addEventListener('change', (event) => {
 				if (!selectedObject && !selectedObject.isVehicle) return;
-				let name = selectedObject.name;
-				if (name === 'TruckTrailer') {
-					name = 'Truck_with_trailer';
-				} else if (name === 'Motorbike') {
-					name = 'Group_008';
-				} else if (name === 'Bicycle') {
-					name = 'bicycle';
-				}
+				let name = getNameForVehicleColor(selectedObject.name);
+				const hexColor = event.target.value;
+				selectedObject.vehicleColor = hexColor;
 				selectedObject.children[0].children.forEach((child) => {
-					changeVehicleColor(child, name, event);
+					changeVehicleColor(child, name, hexColor);
 				});
 			});
 		Object.values(SIGN_TEXTURES).forEach((filename) => {
@@ -178,16 +185,90 @@ function addListeners(scene, camera, gridHelper) {
 		input.addEventListener('change', (e) => {
 			const file = e.target.files[0];
 			const reader = new FileReader();
+			scene.clear();
 			reader.onload = (e) => {
-				const json = JSON.parse(e.target.result);
-				const loadedScene = new THREE.ObjectLoader().parse(json);
-				scene.children.forEach((child) => {
-					if (child.type === 'Object3D') {
-						scene.remove(child);
+				const data = JSON.parse(e.target.result);
+				initScene(scene, gridHelper);
+				data.forEach((item) => {
+					if (item.type !== 'Mesh') return;
+					switch (item.customType) {
+						case 'Sign':
+							const sign = SignFactory.createSign(item.name);
+							sign.position.set(
+								item.position.x,
+								item.position.y,
+								item.position.z
+							);
+							sign.rotation.set(
+								item.rotation.x,
+								item.rotation.y,
+								item.rotation.z
+							);
+							scene.add(sign);
+							break;
+						case 'Road':
+							const road = RoadFactory.createRoad(item.name);
+							road.position.set(
+								item.position.x,
+								item.position.y,
+								item.position.z
+							);
+							road.rotation.set;
+							scene.add(road);
+							break;
+						case 'Vehicle':
+							VehicleFactory.createVehicle(item.name).then((vehicle) => {
+								vehicle.position.set(
+									item.position.x,
+									item.position.y,
+									item.position.z
+								);
+								vehicle.rotation.set(
+									item.rotation.x,
+									item.rotation.y,
+									item.rotation.z
+								);
+								changeVehicleColor(
+									vehicle.children[0].children[0],
+									getNameForVehicleColor(item.name),
+									item.vehicleColor
+								);
+								scene.add(vehicle);
+							});
+							break;
+						case 'People':
+							PeopleFactory.createPeople(item.name).then((people) => {
+								people.position.set(
+									item.position.x,
+									item.position.y,
+									item.position.z
+								);
+								people.rotation.set(
+									item.rotation.x,
+									item.rotation.y,
+									item.rotation.z
+								);
+								scene.add(people);
+							});
+							break;
+						case 'Environment':
+							EnvironmentFactory.createObject(item.name).then((object) => {
+								object.position.set(
+									item.position.x,
+									item.position.y,
+									item.position.z
+								);
+								object.rotation.set(
+									item.rotation.x,
+									item.rotation.y,
+									item.rotation.z
+								);
+								scene.add(object);
+							});
+							break;
+						default:
+							break;
 					}
-				});
-				loadedScene.children.forEach((child) => {
-					scene.add(child);
 				});
 			};
 			reader.readAsText(file);
@@ -212,7 +293,35 @@ function addListeners(scene, camera, gridHelper) {
 	});
 	document.querySelector('#export').addEventListener('click', () => {
 		scene.updateMatrixWorld();
-		const blob = new Blob([JSON.stringify(scene.toJSON())], {
+		const data = [];
+		scene.children.forEach((child) => {
+			if (child.type !== 'Mesh' || child.name === 'ground') return;
+			const objectInfo = {
+				name: child.name,
+				type: child.type,
+				customType: child.customType,
+				position: {
+					x: child.position.x,
+					y: child.position.y,
+					z: child.position.z
+				},
+				rotation: {
+					x: child.rotation.x,
+					y: child.rotation.y,
+					z: child.rotation.z
+				},
+				scale: {
+					x: child.scale.x,
+					y: child.scale.y,
+					z: child.scale.z
+				}
+			};
+			if (child.isVehicle) {
+				objectInfo.vehicleColor = child.vehicleColor;
+			}
+			data.push(objectInfo);
+		});
+		const blob = new Blob([JSON.stringify(data)], {
 			type: 'text/plain'
 		});
 		const url = URL.createObjectURL(blob);

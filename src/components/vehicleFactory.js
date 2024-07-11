@@ -83,6 +83,8 @@ class VehicleFactory {
 		cube.isVehicle = true;
 		cube.isTransparent = true;
 		cube.isDraggable = true;
+		cube.customType = 'Vehicle';
+		cube.vehicleColor = '';
 		cube.position.set(cubePosition.x, cubePosition.y, cubePosition.z);
 		cube.add(vehicleNode);
 		return cube;
