@@ -14,16 +14,25 @@ class SignFactory {
 		});
 		const sign = new THREE.Mesh(geometry, material);
 		sign.position.set(0, 0.75, 0);
-		sign.isDraggable = true;
 		sign.scale.set(0.25, 0.25, 0.25);
 		const poleGeometry = new THREE.CylinderGeometry(0.1, 0.1, 2);
 		const poleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 		const pole = new THREE.Mesh(poleGeometry, poleMaterial);
 		pole.position.set(0, -2, 0);
-		sign.name = filename;
-		sign.customType = 'Sign';
 		sign.add(pole);
-		return sign;
+		const cubeGeometry = new THREE.BoxGeometry(0.5, 2, 0.5);
+		const cubeMaterial = new THREE.MeshBasicMaterial({
+			color: 0xffffff,
+			opacity: 0.0
+		});
+		cubeMaterial.transparent = true;
+		const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+		cube.isTransparent = true;
+		cube.isDraggable = true;
+		cube.customType = 'Sign';
+		cube.name = filename;
+		cube.add(sign);
+		return cube;
 	}
 }
 
