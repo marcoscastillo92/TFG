@@ -24947,7 +24947,7 @@ class Pc {
 class Ic {
 	static createSign(e) {
 		const t = new jr(1, 1, 0.1),
-			n = new Qr().load(`./textures/${e}`);
+			n = new Qr().load(`./assets/textures/${e}`);
 		t.lookAt(new L(0, 1, 0)),
 			(n.colorSpace = At),
 			(n.flipY = !1),
@@ -24977,7 +24977,7 @@ class Ic {
 class Dc {
 	static createRoad(e) {
 		const t = new sn(1, 0.1, 1),
-			n = new Qr().load(`./textures/${e}.jpg`);
+			n = new Qr().load(`./assets/textures/${e}.jpg`);
 		(n.wrapS = en), (n.wrapT = en), n.repeat.set(1, 1);
 		const i = new Lt({ map: n }),
 			s = new ut(t, i);
@@ -27312,7 +27312,7 @@ function W_(r) {
 class zc {
 	static async createVehicle(e) {
 		const n = (
-			await G_.loadAsync(`./models/vehicles/${e}/${e}.gltf`)
+			await G_.loadAsync(`./assets/models/vehicles/${e}/${e}.gltf`)
 		).scene.getObjectByName('RootNode');
 		console.log(
 			Ro(n).join(`
@@ -27345,7 +27345,7 @@ const X_ = new wo();
 class Gc {
 	static async createPeople(e) {
 		const n = (
-			await X_.loadAsync(`./models/people/${e}/${e}.gltf`)
+			await X_.loadAsync(`./assets/models/people/${e}/${e}.gltf`)
 		).scene.getObjectByName('RootNode');
 		console.log(
 			Ro(n).join(`
@@ -27398,7 +27398,7 @@ function K_(r) {
 class Hc {
 	static async createObject(e) {
 		const n = (
-				await q_.loadAsync(`./models/environment/${e}/${e}.gltf`)
+				await q_.loadAsync(`./assets/models/environment/${e}/${e}.gltf`)
 			).scene.getObjectByName('RootNode'),
 			i = K_(e);
 		n.position.set(i.x, -i.y, i.z);
@@ -27487,7 +27487,7 @@ function Bl(r, e) {
 	const t = new jg(16777215, 1);
 	r.add(t), r.add(e);
 	const n = new nr(20, 20),
-		i = new Qr().load('./textures/concrete.jpg');
+		i = new Qr().load('./assets/textures/concrete.jpg');
 	(i.wrapS = en), (i.wrapT = en), i.repeat.set(10, 10);
 	const s = new Lt({ map: i }),
 		o = new ut(n, s);
@@ -27583,7 +27583,7 @@ function r0(r, e, t) {
 			Object.values($_).forEach((i) => {
 				const s = document.createElement('img');
 				(s.draggable = !0),
-					(s.src = `./textures/${i}`),
+					(s.src = `./assets/textures/${i}`),
 					(s.alt = i),
 					(s.dataset.type = 'sign'),
 					s.addEventListener('click', () => {
@@ -27594,7 +27594,7 @@ function r0(r, e, t) {
 			}),
 			Object.values(Z_).forEach((i) => {
 				const s = document.createElement('img');
-				(s.src = `./textures/${i}.jpg`),
+				(s.src = `./assets/textures/${i}.jpg`),
 					(s.alt = i),
 					(s.dataset.type = 'road'),
 					s.addEventListener('click', () => {
@@ -27605,7 +27605,7 @@ function r0(r, e, t) {
 			}),
 			Object.keys(e0).forEach((i) => {
 				const s = document.createElement('img');
-				(s.src = `./vehicle_icons/${i}.png`),
+				(s.src = `./assets/vehicle_icons/${i}.png`),
 					(s.alt = i),
 					(s.dataset.type = 'vehicle'),
 					s.addEventListener('click', () => {
@@ -27617,7 +27617,7 @@ function r0(r, e, t) {
 			}),
 			Object.keys(J_).forEach((i) => {
 				const s = document.createElement('img');
-				(s.src = `./people_icons/${i}.png`),
+				(s.src = `./assets/people_icons/${i}.png`),
 					(s.alt = i),
 					(s.dataset.type = 'people'),
 					s.addEventListener('click', () => {
@@ -27629,7 +27629,7 @@ function r0(r, e, t) {
 			}),
 			Object.keys(Q_).forEach((i) => {
 				const s = document.createElement('img');
-				(s.src = `./environment_icons/${i}.png`),
+				(s.src = `./assets/environment_icons/${i}.png`),
 					(s.alt = i),
 					(s.dataset.type = 'environment'),
 					s.addEventListener('click', () => {
