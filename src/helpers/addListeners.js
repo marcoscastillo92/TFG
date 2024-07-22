@@ -111,7 +111,7 @@ function addListeners(scene, camera, gridHelper) {
 		Object.values(SIGN_TEXTURES).forEach((filename) => {
 			const img = document.createElement('img');
 			img.draggable = true;
-			img.src = `/src/textures/${filename}`;
+			img.src = `/assets/textures/${filename}`;
 			img.alt = filename;
 			img.dataset.type = 'sign';
 			img.addEventListener('click', () => {
@@ -124,7 +124,7 @@ function addListeners(scene, camera, gridHelper) {
 		});
 		Object.values(ROAD_TEXTURES).forEach((filename) => {
 			const img = document.createElement('img');
-			img.src = `/src/textures/${filename}.jpg`;
+			img.src = `/assets/textures/${filename}.jpg`;
 			img.alt = filename;
 			img.dataset.type = 'road';
 			img.addEventListener('click', () => {

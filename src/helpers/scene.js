@@ -5,7 +5,9 @@ export function initScene(scene, gridHelper) {
 	scene.add(light);
 	scene.add(gridHelper);
 	const geometry = new THREE.PlaneGeometry(20, 20);
-	const texture = new THREE.TextureLoader().load('/src/textures/concrete.jpg');
+	const texture = new THREE.TextureLoader().load(
+		'/assets/textures/concrete.jpg'
+	);
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set(10, 10);

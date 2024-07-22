@@ -35,7 +35,7 @@ function getPositionByType(type) {
 class EnvironmentFactory {
 	static async createObject(key) {
 		const gltf = await gltfLoader.loadAsync(
-			`/src/models/environment/${key}/${key}.gltf`
+			`/assets/models/environment/${key}/${key}.gltf`
 		);
 		const objectNode = gltf.scene.getObjectByName('RootNode');
 		const position = getPositionByType(key);

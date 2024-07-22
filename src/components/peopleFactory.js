@@ -7,7 +7,7 @@ const gltfLoader = new GLTFLoader();
 class PeopleFactory {
 	static async createPeople(people) {
 		const gltf = await gltfLoader.loadAsync(
-			`/src/models/people/${people}/${people}.gltf`
+			`/assets/models/people/${people}/${people}.gltf`
 		);
 		const peopleNode = gltf.scene.getObjectByName('RootNode');
 		console.log(dumpObject(peopleNode).join('\n'));

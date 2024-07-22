@@ -3,7 +3,9 @@ import * as THREE from 'three';
 class SignFactory {
 	static createSign(filename) {
 		const geometry = new THREE.CylinderGeometry(1, 1, 0.1);
-		const texture = new THREE.TextureLoader().load(`/src/textures/${filename}`);
+		const texture = new THREE.TextureLoader().load(
+			`/assets/textures/${filename}`
+		);
 		geometry.lookAt(new THREE.Vector3(0, 1, 0));
 		texture.colorSpace = THREE.SRGBColorSpace;
 		texture.flipY = false;

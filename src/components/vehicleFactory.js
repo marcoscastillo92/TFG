@@ -58,7 +58,7 @@ function getBoxPositionByType(type) {
 class VehicleFactory {
 	static async createVehicle(vehicle) {
 		const gltf = await gltfLoader.loadAsync(
-			`/src/models/vehicles/${vehicle}/${vehicle}.gltf`
+			`/assets/models/vehicles/${vehicle}/${vehicle}.gltf`
 		);
 		const vehicleNode = gltf.scene.getObjectByName('RootNode');
 		console.log(dumpObject(vehicleNode).join('\n'));

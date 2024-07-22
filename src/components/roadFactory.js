@@ -4,7 +4,7 @@ class RoadFactory {
 	static createRoad(textureSelected) {
 		const geometry = new THREE.BoxGeometry(1, 0.1, 1);
 		const texture = new THREE.TextureLoader().load(
-			`/src/textures/${textureSelected}.jpg`
+			`/assets/textures/${textureSelected}.jpg`
 		);
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
