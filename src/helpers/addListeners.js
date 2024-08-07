@@ -46,7 +46,9 @@ function selectObject(object) {
 	if (!object) return;
 	resetSelectedObject();
 	selectedObject = object;
-	control.attach(selectedObject);
+	if (selectedObject.isDraggable) {
+		control.attach(selectedObject);
+	}
 	previousMaterialColor = object.material?.color?.getHex();
 	object.material?.color?.setHex('0xFFDE59');
 	if (object.isTransparent) {
