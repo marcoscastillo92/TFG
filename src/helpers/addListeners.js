@@ -11,6 +11,7 @@ import ENVIRONMENT from '../constants/environment.js';
 import VEHICLES from '../constants/vehicles.js';
 import { initScene } from '../helpers/scene.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
 
 let zenitalView = false;
 let allowMovement = false;
@@ -21,6 +22,8 @@ let selectedObject = null;
 let gridHelper = null;
 let scene = null;
 let camera = null;
+let control = null;
+let controlMode = 'translate';
 
 const NON_SELECTABLE_NAME_OBJECTS = ['ground'];
 const mouse = new THREE.Vector2();
@@ -29,6 +32,7 @@ const height = window.innerHeight;
 
 function resetSelectedObject() {
 	if (selectedObject) {
+		control.detach();
 		selectedObject.material?.color?.setHex(previousMaterialColor);
 		previousMaterialColor = '';
 		if (selectedObject.isTransparent) {
@@ -42,6 +46,7 @@ function selectObject(object) {
 	if (!object) return;
 	resetSelectedObject();
 	selectedObject = object;
+	control.attach(selectedObject);
 	previousMaterialColor = object.material?.color?.getHex();
 	object.material?.color?.setHex('0xFFDE59');
 	if (object.isTransparent) {
@@ -88,10 +93,26 @@ function getNameForVehicleColor(name) {
 	return name;
 }
 
-function addListeners(mainScene, mainCamera, mainGridHelper) {
+function addListeners(
+	mainScene,
+	mainCamera,
+	mainGridHelper,
+	renderer,
+	orbitControls
+) {
 	scene = mainScene;
 	camera = mainCamera;
 	gridHelper = mainGridHelper;
+	control = new TransformControls(camera, renderer.domElement);
+	control.showY = false;
+	control.setMode(controlMode);
+	control.addEventListener('change', function () {
+		renderer.render(scene, camera);
+	});
+	control.addEventListener('dragging-changed', function (event) {
+		orbitControls.enabled = !event.value;
+	});
+	scene.add(control);
 	document.addEventListener('DOMContentLoaded', () => {
 		Object.values(SIGN_TEXTURES).forEach((filename) => {
 			const img = document.createElement('img');
@@ -443,7 +464,8 @@ function addPanel() {
 				camera.rotation.set(0, 0, 0);
 				camera.lookAt(0, 0, 0);
 			}
-		}
+		},
+		'Control mode': 'translate'
 	};
 
 	folder1.add(settings, 'Load');
@@ -502,6 +524,12 @@ function addPanel() {
 	});
 	folder4.add(settings, 'Flip texture');
 	folder4.add(settings, 'Toggle view');
+	folder4
+		.add(settings, 'Control mode', ['translate', 'rotate'])
+		.onChange((value) => {
+			controlMode = value;
+			control.setMode(controlMode);
+		});
 
 	folder1.close();
 	folder2.close();

@@ -29,7 +29,7 @@ window.addEventListener('resize', () => {
 });
 
 initScene(scene, gridHelper);
-addListeners(scene, camera, gridHelper);
+addListeners(scene, camera, gridHelper, renderer, controls);
 
 function animate() {
 	requestAnimationFrame(animate);
