@@ -27,7 +27,7 @@ let controlMode = 'translate';
 
 const NON_SELECTABLE_NAME_OBJECTS = ['ground'];
 const mouse = new THREE.Vector2();
-const width = window.innerWidth * 0.8;
+const width = window.innerWidth;
 const height = window.innerHeight;
 
 function resetSelectedObject() {
@@ -116,6 +116,14 @@ function addListeners(
 	});
 	scene.add(control);
 	document.addEventListener('DOMContentLoaded', () => {
+		document.querySelector('h4').addEventListener('click', (el) => {
+			const collapsableElement = document.querySelector('.collapsable');
+			const isHidden = collapsableElement.classList.contains('hide');
+			const search = isHidden ? '▸' : '▾';
+			const replacement = isHidden ? '▾' : '▸';
+			el.target.innerText = el.target.innerText.replace(search, replacement);
+			collapsableElement.classList.toggle('hide');
+		});
 		Object.values(SIGN_TEXTURES).forEach((filename) => {
 			const img = document.createElement('img');
 			img.draggable = true;
@@ -514,6 +522,12 @@ function addPanel() {
 		if (!selectedObject) return;
 		selectedObject.position.z = value;
 	});
+	folder4
+		.add(settings, 'Control mode', ['translate', 'rotate'])
+		.onChange((value) => {
+			controlMode = value;
+			control.setMode(controlMode);
+		});
 	folder4.add(settings, 'Show grid').onChange(toggleGrid);
 	folder4.addColor(settings, 'Vehicle color').onChange(function (value) {
 		if (!selectedObject || !selectedObject.isVehicle) return;
@@ -526,16 +540,10 @@ function addPanel() {
 	});
 	folder4.add(settings, 'Flip texture');
 	folder4.add(settings, 'Toggle view');
-	folder4
-		.add(settings, 'Control mode', ['translate', 'rotate'])
-		.onChange((value) => {
-			controlMode = value;
-			control.setMode(controlMode);
-		});
 
-	folder1.close();
-	folder2.close();
-	folder3.close();
+	folder1.open();
+	folder2.open();
+	folder3.open();
 	folder4.open();
 }
 addPanel();

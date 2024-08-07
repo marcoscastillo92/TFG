@@ -1,14 +1,20 @@
 body { 
   margin: 0;
-  background-color: gray;
+  background-color: #111;
 }
 .menu {
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  height: 98vh;
-  width: 20%;
-  padding: 0 2rem 0 1rem;
+  float: right;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  max-height: 90vh;
+  padding: 0 1rem 0 1rem;
+  background-color: #1f1f1f;
+  color: white;
+  font-weight: 400;
+  font-size: small;
+  line-height: 0px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 .section {
   display: flex;
@@ -18,12 +24,7 @@ body {
 }
 .canvas {
   background: url(/assets/textures/skybox.jpg) no-repeat center center;
-  width: 80%;
   height: 100%;
-}
-h4 {
-  margin-block-end: 0;
-  border-bottom: 2px solid black;
 }
 h5 {
   margin-block-end: 0;
@@ -34,8 +35,10 @@ h5 {
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-top: 1rem;
+  margin-bottom: 1rem;
   background-color: #ffffff;
   overflow-y: auto;
+  height: 500px;
 
   img {
     width: 64px;

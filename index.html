@@ -6,23 +6,23 @@
 		<link rel="stylesheet" href="./src/styles/styles.css">
 	</head>
 	<body>
-		<section class="section">
-			<canvas class="canvas"></canvas>
+		<canvas class="canvas"></canvas>
 			<article class="menu">
-				<h4>Gallery</h4>
-				<div>
-					<label for="gallery-filter">Filter by type</label>
-					<select id="gallery-filter">
-						<option value="all">All</option>
-						<option value="road">Road</option>
-						<option value="sign">Sign</option>
-						<option value="vehicle">Vehicle</option>
-					</select>
-				</div>
-				<div id="gallery">
+				<h4>▸ Gallery</h4>
+				<div class="collapsable hide">
+					<div>
+						<label for="gallery-filter">Filter by type</label>
+						<select id="gallery-filter">
+							<option value="all">All</option>
+							<option value="road">Road</option>
+							<option value="sign">Sign</option>
+							<option value="vehicle">Vehicle</option>
+						</select>
+					</div>
+					<div id="gallery">
+					</div>
 				</div>
 			</article>
-		</section>
 		<script type="module" src="./src/main.js"></script>
 	</body>
 </html>

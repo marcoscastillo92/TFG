@@ -4,7 +4,7 @@ import WebGL from 'three/addons/capabilities/WebGL.js';
 import addListeners from './helpers/addListeners.js';
 import { initScene } from './helpers/scene.js';
 
-let width = window.innerWidth * 0.8;
+let width = window.innerWidth;
 let height = window.innerHeight;
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
@@ -22,7 +22,7 @@ renderer.setSize(width, height);
 camera.position.set(0, 5, 10);
 
 window.addEventListener('resize', () => {
-	width = window.innerWidth * 0.8;
+	width = window.innerWidth;
 	height = window.innerHeight;
 	camera.updateProjectionMatrix();
 	renderer.setSize(width, height);
