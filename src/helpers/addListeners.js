@@ -10,6 +10,7 @@ import PEOPLE from '../constants/people.js';
 import ENVIRONMENT from '../constants/environment.js';
 import VEHICLES from '../constants/vehicles.js';
 import { initScene } from '../helpers/scene.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 let zenitalView = false;
 let allowMovement = false;
@@ -17,6 +18,9 @@ let movementStep = 0.5;
 let rotateStep = 45;
 let previousMaterialColor = '';
 let selectedObject = null;
+let gridHelper = null;
+let scene = null;
+let camera = null;
 
 const NON_SELECTABLE_NAME_OBJECTS = ['ground'];
 const mouse = new THREE.Vector2();
@@ -31,7 +35,6 @@ function resetSelectedObject() {
 			selectedObject.material.opacity = 0.0;
 		}
 		selectedObject = null;
-		updateObjectInfo({ rotation: { y: 0 }, position: { x: 0, y: 0, z: 0 } });
 	}
 }
 
@@ -44,16 +47,6 @@ function selectObject(object) {
 	if (object.isTransparent) {
 		object.material.opacity = 0.5;
 	}
-	updateObjectInfo(object);
-}
-
-function updateObjectInfo(object) {
-	document.querySelector('#rotate-number').value =
-		object.rotation.y * (180 / Math.PI);
-	document.querySelector('#rotate').value = object.rotation.y * (180 / Math.PI);
-	document.querySelector('#position-x').value = object.position.x;
-	document.querySelector('#position-y').value = object.position.y;
-	document.querySelector('#position-z').value = object.position.z;
 }
 
 function flipSelectedTexture() {
@@ -95,19 +88,11 @@ function getNameForVehicleColor(name) {
 	return name;
 }
 
-function addListeners(scene, camera, gridHelper) {
+function addListeners(mainScene, mainCamera, mainGridHelper) {
+	scene = mainScene;
+	camera = mainCamera;
+	gridHelper = mainGridHelper;
 	document.addEventListener('DOMContentLoaded', () => {
-		document
-			.querySelector('#vehicle-color')
-			.addEventListener('change', (event) => {
-				if (!selectedObject && !selectedObject.isVehicle) return;
-				let name = getNameForVehicleColor(selectedObject.name);
-				const hexColor = event.target.value;
-				selectedObject.vehicleColor = hexColor;
-				selectedObject.children[0].children.forEach((child) => {
-					changeVehicleColor(child, name, hexColor);
-				});
-			});
 		Object.values(SIGN_TEXTURES).forEach((filename) => {
 			const img = document.createElement('img');
 			img.draggable = true;
@@ -178,158 +163,6 @@ function addListeners(scene, camera, gridHelper) {
 			document.querySelector('#gallery').appendChild(img);
 		});
 	});
-	document.querySelector('#load').addEventListener('click', () => {
-		const input = document.createElement('input');
-		input.type = 'file';
-		input.accept = '.json';
-		input.addEventListener('change', (e) => {
-			const file = e.target.files[0];
-			const reader = new FileReader();
-			scene.clear();
-			reader.onload = (e) => {
-				const data = JSON.parse(e.target.result);
-				initScene(scene, gridHelper);
-				data.forEach((item) => {
-					if (item.type !== 'Mesh') return;
-					switch (item.customType) {
-						case 'Sign':
-							const sign = SignFactory.createSign(item.name);
-							sign.position.set(
-								item.position.x,
-								item.position.y,
-								item.position.z
-							);
-							sign.rotation.set(
-								item.rotation.x,
-								item.rotation.y,
-								item.rotation.z
-							);
-							scene.add(sign);
-							break;
-						case 'Road':
-							const road = RoadFactory.createRoad(item.name);
-							road.position.set(
-								item.position.x,
-								item.position.y,
-								item.position.z
-							);
-							road.rotation.set;
-							scene.add(road);
-							break;
-						case 'Vehicle':
-							VehicleFactory.createVehicle(item.name).then((vehicle) => {
-								vehicle.position.set(
-									item.position.x,
-									item.position.y,
-									item.position.z
-								);
-								vehicle.rotation.set(
-									item.rotation.x,
-									item.rotation.y,
-									item.rotation.z
-								);
-								changeVehicleColor(
-									vehicle.children[0].children[0],
-									getNameForVehicleColor(item.name),
-									item.vehicleColor
-								);
-								scene.add(vehicle);
-							});
-							break;
-						case 'People':
-							PeopleFactory.createPeople(item.name).then((people) => {
-								people.position.set(
-									item.position.x,
-									item.position.y,
-									item.position.z
-								);
-								people.rotation.set(
-									item.rotation.x,
-									item.rotation.y,
-									item.rotation.z
-								);
-								scene.add(people);
-							});
-							break;
-						case 'Environment':
-							EnvironmentFactory.createObject(item.name).then((object) => {
-								object.position.set(
-									item.position.x,
-									item.position.y,
-									item.position.z
-								);
-								object.rotation.set(
-									item.rotation.x,
-									item.rotation.y,
-									item.rotation.z
-								);
-								scene.add(object);
-							});
-							break;
-						default:
-							break;
-					}
-				});
-			};
-			reader.readAsText(file);
-		});
-		input.click();
-	});
-	document.querySelector('#screenshot')?.addEventListener('click', () => {
-		const cav = document.querySelector('.canvas');
-		const base64 = cav.toDataURL('img/png');
-		var a = document.createElement('a');
-		a.href = base64;
-		const date = new Date();
-		const timestamp =
-			date.toLocaleDateString('en-ca').replaceAll('-', '') +
-			'_' +
-			date.getHours().toString() +
-			date.getMinutes().toString() +
-			date.getSeconds().toString() +
-			date.getMilliseconds().toString();
-		a.download = `atestator-${timestamp}.png`;
-		a.click();
-	});
-	document.querySelector('#export').addEventListener('click', () => {
-		scene.updateMatrixWorld();
-		const data = [];
-		scene.children.forEach((child) => {
-			if (child.type !== 'Mesh' || child.name === 'ground') return;
-			const objectInfo = {
-				name: child.name,
-				type: child.type,
-				customType: child.customType,
-				position: {
-					x: child.position.x,
-					y: child.position.y,
-					z: child.position.z
-				},
-				rotation: {
-					x: child.rotation.x,
-					y: child.rotation.y,
-					z: child.rotation.z
-				},
-				scale: {
-					x: child.scale.x,
-					y: child.scale.y,
-					z: child.scale.z
-				}
-			};
-			if (child.isVehicle) {
-				objectInfo.vehicleColor = child.vehicleColor;
-			}
-			data.push(objectInfo);
-		});
-		const blob = new Blob([JSON.stringify(data)], {
-			type: 'text/plain'
-		});
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = 'scene.json';
-		a.click();
-	});
 	document.querySelector('#gallery-filter').addEventListener('change', (e) => {
 		const type = e.target.value;
 		const images = document.querySelectorAll('#gallery img');
@@ -351,10 +184,6 @@ function addListeners(scene, camera, gridHelper) {
 			resetSelectedObject();
 		} else if (e.key === 'm') {
 			allowMovement = !allowMovement;
-			document.querySelector('#move').checked = allowMovement;
-		} else if (e.key === 'g') {
-			gridHelper.visible = !gridHelper.visible;
-			document.querySelector('#toggle-grid').checked = gridHelper.visible;
 		} else if (e.key === 'c' && selectedObject) {
 			const cloned = selectedObject.clone();
 			cloned.position.x += 1;
@@ -364,95 +193,6 @@ function addListeners(scene, camera, gridHelper) {
 		} else if (e.key === 'f') {
 			flipSelectedTexture();
 		}
-	});
-	document.querySelector('#move').addEventListener('change', (e) => {
-		allowMovement = e.target.checked;
-	});
-	document.querySelector('#flip-texture').addEventListener('click', () => {
-		flipSelectedTexture();
-	});
-	document.querySelector('#toggle-view').addEventListener('click', () => {
-		zenitalView = !zenitalView;
-		if (!zenitalView) {
-			camera.position.set(0, 5, 10);
-			camera.lookAt(0, 0, 0);
-		} else {
-			camera.position.set(0, 10, 0);
-			camera.lookAt(0, 0, 0);
-		}
-	});
-	document.querySelector('#toggle-grid').addEventListener('click', () => {
-		gridHelper.visible = !gridHelper.visible;
-	});
-	document.querySelector('#reset-position').addEventListener('click', () => {
-		if (!selectedObject) return;
-		selectedObject.position.set(0, 0, 0);
-		updateObjectInfo(selectedObject);
-	});
-	document.querySelector('#reset-rotation').addEventListener('click', () => {
-		if (!selectedObject) return;
-		selectedObject.rotation.set(0, 0, 0);
-		updateObjectInfo(selectedObject);
-	});
-	document.querySelector('#rotate-left').addEventListener('click', () => {
-		if (!selectedObject) return;
-		selectedObject.rotation.y -= (rotateStep * Math.PI) / 180;
-		updateObjectInfo(selectedObject);
-	});
-	document.querySelector('#rotate-right').addEventListener('click', () => {
-		if (!selectedObject) return;
-		selectedObject.rotation.y += (rotateStep * Math.PI) / 180;
-		updateObjectInfo(selectedObject);
-	});
-	document.querySelector('#rotate').addEventListener('change', (e) => {
-		document.querySelector('#rotate-number').value = e.target.value;
-		if (!selectedObject) return;
-		const x = document.querySelector('#rotation-x').checked
-			? e.target.value
-			: selectedObject.rotation.x;
-		const y = document.querySelector('#rotation-y').checked
-			? e.target.value
-			: selectedObject.rotation.y;
-		const z = document.querySelector('#rotation-z').checked
-			? e.target.value
-			: selectedObject.rotation.z;
-		selectedObject.rotation.set(
-			(x * Math.PI) / 180,
-			(y * Math.PI) / 180,
-			(z * Math.PI) / 180
-		);
-	});
-	document.querySelector('#rotate-number').addEventListener('change', (e) => {
-		document.querySelector('#rotate').value = e.target.value;
-		if (!selectedObject) return;
-		const x = document.querySelector('#rotation-x').checked
-			? e.target.value
-			: selectedObject.rotation.x;
-		const y = document.querySelector('#rotation-y').checked
-			? e.target.value
-			: selectedObject.rotation.y;
-		const z = document.querySelector('#rotation-z').checked
-			? e.target.value
-			: selectedObject.rotation.z;
-		selectedObject.rotation.set(
-			(x * Math.PI) / 180,
-			(y * Math.PI) / 180,
-			(z * Math.PI) / 180
-		);
-	});
-	document.querySelector('#position-x').addEventListener('change', (e) => {
-		if (!selectedObject) return;
-		selectedObject.position.x = e.target.value;
-	});
-	document.querySelector('#position-z').addEventListener('change', (e) => {
-		if (!selectedObject) return;
-		selectedObject.position.z = e.target.value;
-	});
-	document.querySelector('#movement-step').addEventListener('change', (e) => {
-		movementStep = Number(e.target.value);
-	});
-	document.querySelector('#rotate-step').addEventListener('change', (e) => {
-		rotateStep = Number(e.target.value);
 	});
 	window.addEventListener('mousemove', (e) => {
 		mouse.x = (e.clientX / width) * 2 - 1;
@@ -476,8 +216,7 @@ function addListeners(scene, camera, gridHelper) {
 	});
 	document.querySelector('.canvas').addEventListener('click', (e) => {
 		if (selectedObject && selectedObject.isDraggable && allowMovement) {
-			allowMovement = false;
-			document.querySelector('#move').checked = allowMovement;
+			allowMovement = !allowMovement;
 		}
 		e.preventDefault();
 		camera.updateMatrixWorld();
@@ -502,5 +241,273 @@ function addListeners(scene, camera, gridHelper) {
 		selectObject(selected);
 	});
 }
+
+function loadScene() {
+	const input = document.createElement('input');
+	input.type = 'file';
+	input.accept = '.json';
+	input.addEventListener('change', (e) => {
+		const file = e.target.files[0];
+		const reader = new FileReader();
+		scene.clear();
+		reader.onload = (e) => {
+			const data = JSON.parse(e.target.result);
+			initScene(scene, gridHelper);
+			data.forEach((item) => {
+				if (item.type !== 'Mesh') return;
+				switch (item.customType) {
+					case 'Sign':
+						const sign = SignFactory.createSign(item.name);
+						sign.position.set(
+							item.position.x,
+							item.position.y,
+							item.position.z
+						);
+						sign.rotation.set(
+							item.rotation.x,
+							item.rotation.y,
+							item.rotation.z
+						);
+						scene.add(sign);
+						break;
+					case 'Road':
+						const road = RoadFactory.createRoad(item.name);
+						road.position.set(
+							item.position.x,
+							item.position.y,
+							item.position.z
+						);
+						road.rotation.set;
+						scene.add(road);
+						break;
+					case 'Vehicle':
+						VehicleFactory.createVehicle(item.name).then((vehicle) => {
+							vehicle.position.set(
+								item.position.x,
+								item.position.y,
+								item.position.z
+							);
+							vehicle.rotation.set(
+								item.rotation.x,
+								item.rotation.y,
+								item.rotation.z
+							);
+							changeVehicleColor(
+								vehicle.children[0].children[0],
+								getNameForVehicleColor(item.name),
+								item.vehicleColor
+							);
+							scene.add(vehicle);
+						});
+						break;
+					case 'People':
+						PeopleFactory.createPeople(item.name).then((people) => {
+							people.position.set(
+								item.position.x,
+								item.position.y,
+								item.position.z
+							);
+							people.rotation.set(
+								item.rotation.x,
+								item.rotation.y,
+								item.rotation.z
+							);
+							scene.add(people);
+						});
+						break;
+					case 'Environment':
+						EnvironmentFactory.createObject(item.name).then((object) => {
+							object.position.set(
+								item.position.x,
+								item.position.y,
+								item.position.z
+							);
+							object.rotation.set(
+								item.rotation.x,
+								item.rotation.y,
+								item.rotation.z
+							);
+							scene.add(object);
+						});
+						break;
+					default:
+						break;
+				}
+			});
+		};
+		reader.readAsText(file);
+	});
+	input.click();
+}
+
+function exportScene() {
+	scene.updateMatrixWorld();
+	const data = [];
+	scene.children.forEach((child) => {
+		if (child.type !== 'Mesh' || child.name === 'ground') return;
+		const objectInfo = {
+			name: child.name,
+			type: child.type,
+			customType: child.customType,
+			position: {
+				x: child.position.x,
+				y: child.position.y,
+				z: child.position.z
+			},
+			rotation: {
+				x: child.rotation.x,
+				y: child.rotation.y,
+				z: child.rotation.z
+			},
+			scale: {
+				x: child.scale.x,
+				y: child.scale.y,
+				z: child.scale.z
+			}
+		};
+		if (child.isVehicle) {
+			objectInfo.vehicleColor = child.vehicleColor;
+		}
+		data.push(objectInfo);
+	});
+	const blob = new Blob([JSON.stringify(data)], {
+		type: 'text/plain'
+	});
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = 'scene.json';
+	a.click();
+}
+
+function screenshot() {
+	const cav = document.querySelector('.canvas');
+	const base64 = cav.toDataURL('img/png');
+	var a = document.createElement('a');
+	a.href = base64;
+	const date = new Date();
+	const timestamp =
+		date.toLocaleDateString('en-ca').replaceAll('-', '') +
+		'_' +
+		date.getHours().toString() +
+		date.getMinutes().toString() +
+		date.getSeconds().toString() +
+		date.getMilliseconds().toString();
+	a.download = `atestator-${timestamp}.png`;
+	a.click();
+}
+
+function toggleGrid() {
+	gridHelper.visible = !gridHelper.visible;
+}
+
+function addPanel() {
+	const panel = new GUI({ width: 310 });
+
+	const folder1 = panel.addFolder('Actions');
+	const folder2 = panel.addFolder('Rotation');
+	const folder3 = panel.addFolder('Traslation');
+	const folder4 = panel.addFolder('Settings');
+
+	const settings = {
+		Load: function () {
+			loadScene();
+		},
+		Export: function () {
+			exportScene();
+		},
+		Screenshot: function () {
+			screenshot();
+		},
+		'Show grid': true,
+		'Rotation X': 0.0,
+		'Rotation Y': 0.0,
+		'Rotation Z': 0.0,
+		'Position X': 0.0,
+		'Position Y': 0.0,
+		'Position Z': 0.0,
+		'Modify rotation step size': 45.0,
+		'Modify position step size': 0.5,
+		'Vehicle color': '#000000',
+		'Flip texture': function () {
+			flipSelectedTexture();
+		},
+		'Toggle view': function () {
+			zenitalView = !zenitalView;
+			if (!zenitalView) {
+				camera.position.set(0, 5, 10);
+				camera.rotation.set(0, 0, 0);
+				camera.lookAt(0, 0, 0);
+			} else {
+				camera.position.set(0, 10, 0);
+				camera.rotation.set(0, 0, 0);
+				camera.lookAt(0, 0, 0);
+			}
+		}
+	};
+
+	folder1.add(settings, 'Load');
+	folder1.add(settings, 'Export');
+	folder1.add(settings, 'Screenshot');
+	const rotateXSlider = folder2
+		.add(settings, 'Rotation X', 0.0, 360, rotateStep)
+		.onChange((value) => {
+			if (!selectedObject) return;
+			selectedObject.rotation.x = (value * Math.PI) / 180;
+		});
+	const rotateYSlider = folder2
+		.add(settings, 'Rotation Y', 0.0, 360, rotateStep)
+		.onChange((value) => {
+			if (!selectedObject) return;
+			selectedObject.rotation.y = (value * Math.PI) / 180;
+		});
+	const rotateZSlider = folder2
+		.add(settings, 'Rotation Z', 0.0, 360, rotateStep)
+		.onChange((value) => {
+			if (!selectedObject) return;
+			selectedObject.rotation.z = (value * Math.PI) / 180;
+		});
+	folder2
+		.add(settings, 'Modify rotation step size', 1, 360, 1)
+		.onChange((value) => {
+			rotateStep = value;
+			rotateXSlider.step(rotateStep);
+			rotateYSlider.step(rotateStep);
+			rotateZSlider.step(rotateStep);
+		});
+	folder3.add(settings, 'Position X', -10, 10, 0.5).onChange((value) => {
+		if (!selectedObject) return;
+		selectedObject.position.x = value;
+	});
+	folder3
+		.add(settings, 'Position Y', -10, 10, 0.5)
+		.onChange((value) => {
+			if (!selectedObject) return;
+			selectedObject.position.y = value;
+		})
+		.disable();
+	folder3.add(settings, 'Position Z', -10, 10, 0.5).onChange((value) => {
+		if (!selectedObject) return;
+		selectedObject.position.z = value;
+	});
+	folder4.add(settings, 'Show grid').onChange(toggleGrid);
+	folder4.addColor(settings, 'Vehicle color').onChange(function (value) {
+		if (!selectedObject || !selectedObject.isVehicle) return;
+		let name = getNameForVehicleColor(selectedObject.name);
+		const hexColor = value;
+		selectedObject.vehicleColor = hexColor;
+		selectedObject.children[0].children.forEach((child) => {
+			changeVehicleColor(child, name, hexColor);
+		});
+	});
+	folder4.add(settings, 'Flip texture');
+	folder4.add(settings, 'Toggle view');
+
+	folder1.close();
+	folder2.close();
+	folder3.close();
+	folder4.open();
+}
+addPanel();
 
 export default addListeners;

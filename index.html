@@ -9,61 +9,6 @@
 		<section class="section">
 			<canvas class="canvas"></canvas>
 			<article class="menu">
-				<div class="buttons">
-					<button id="load" class="btn">Load</button>
-					<button id="export" class="btn">Export</button>
-					<button id="screenshot" class="btn">Screenshot</button>
-				</div>
-				<div class="transforms">
-					<h4>Transforms</h4>
-					<h5>Rotation </h5>
-					<div class="rotation-controls">
-						<label for="rotation-x">X: </label>
-						<input id="rotation-x" type="checkbox">
-						<label for="rotation-y">Y: </label>
-						<input id="rotation-y" type="checkbox">
-						<label for="rotation-z">Z: </label>
-						<input id="rotation-z" type="checkbox">
-						<input id="rotate" type="range" min="0" max="360" step="1" value="0">
-						<input id="rotate-number" type="number" min="0" max="360" value="0">
-						<input id="rotate-step" title="Rotation step" type="number" min="0" max="360" value="45">
-						<button id="rotate-left" class="btn">Rotate left</button>
-						<button id="rotate-right" class="btn">Rotate right</button>
-						<button id="reset-rotation" class="btn btn-reset">Reset</button>
-					</div>
-					<h5>Position</h5>
-					<div>
-						<label for="position-x">X: </label>
-						<input id="position-x" type="number" min="-100" max="100" value="0">
-						<label for="position-y">Y: </label>
-						<input id="position-y" type="number" min="-100" max="100" value="0" disabled>
-						<label for="position-z">Z: </label>
-						<input id="position-z" type="number" min="-100" max="100" value="0">
-						<button id="reset-position" class="btn btn-reset">Reset</button>
-					</div>
-				</div>
-				<div class="settings">
-					<h4>Settings</h4>
-					<div>
-						<label for="toggle-grid">Toggle grid</label>
-						<input id="toggle-grid" type="checkbox" title="Press 'g' to toggle"/>
-					</div>
-					<div>
-						<label for="move">Move</label>
-						<input type="checkbox" id="move" title="Press 'm' to toggle" />
-					</div>
-					<div>
-						<label for="move">Movement step</label>
-						<input type="number" id="movement-step" min="0" max="1" step="0.25" value="0.5"/>
-					</div>
-					<div>
-						<label for="vehicle-color">Vehicle color</label>
-						<input type="color" id="vehicle-color" title="Vehicle color"/>
-					</div>
-					<button id="flip-texture" class="btn">Flip texture</button>
-					<button id="toggle-view" class="btn">Toggle view</button>
-				</div>
-
 				<h4>Gallery</h4>
 				<div>
 					<label for="gallery-filter">Filter by type</label>
