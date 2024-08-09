@@ -20,6 +20,7 @@ let rotateStep = 45;
 let previousMaterialColor = '';
 let selectedObject = null;
 let gridHelper = null;
+let orbitControls = null;
 let scene = null;
 let camera = null;
 let control = null;
@@ -105,12 +106,13 @@ function addListeners(
 	mainCamera,
 	mainGridHelper,
 	mainRenderer,
-	orbitControls
+	mainOrbitControls
 ) {
 	scene = mainScene;
 	camera = mainCamera;
 	gridHelper = mainGridHelper;
 	renderer = mainRenderer;
+	orbitControls = mainOrbitControls;
 	control = new TransformControls(camera, renderer.domElement);
 	control.showY = false;
 	control.setMode(controlMode);
@@ -289,7 +291,7 @@ function loadScene() {
 		scene.clear();
 		reader.onload = (e) => {
 			const data = JSON.parse(e.target.result);
-			initScene(scene, gridHelper, camera, renderer, control);
+			initScene(scene, gridHelper, camera, renderer, orbitControls);
 			data.forEach((item) => {
 				if (item.type !== 'Mesh') return;
 				switch (item.customType) {
