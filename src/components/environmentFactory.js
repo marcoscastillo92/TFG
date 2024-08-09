@@ -2,12 +2,17 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const gltfLoader = new GLTFLoader();
-const cubeYSize = 2.8;
 
 function getGeometrySizeByType(type) {
 	switch (type) {
 		case 'Tree':
-			return new THREE.Vector3(1, cubeYSize, 1);
+			return new THREE.Vector3(1, 2.8, 1);
+		case 'light':
+		case 'traffic_semaphore':
+		case 'traffic_semaphore_person':
+			return new THREE.Vector3(1, 2, 1);
+		case 'roundabout':
+			return new THREE.Vector3(0.06, 0.06, 0.06);
 		default:
 			return new THREE.Vector3(1, 1, 1);
 	}
@@ -17,6 +22,13 @@ function getScaleByType(type) {
 	switch (type) {
 		case 'Tree':
 			return new THREE.Vector3(0.06, 0.06, 0.06);
+		case 'light':
+			return new THREE.Vector3(0.15, 0.25, 0.25);
+		case 'roundabout':
+			return new THREE.Vector3(2, 0.06, 2);
+		case 'traffic_semaphore':
+		case 'traffic_semaphore_person':
+			return new THREE.Vector3(0.25, 0.25, 0.25);
 		default:
 			return new THREE.Vector3(1, 1, 1);
 	}
@@ -29,7 +41,14 @@ function getBoxPositionByType(type) {
 
 function getPositionByType(type) {
 	const position = getBoxPositionByType(type);
-	return new THREE.Vector3(0, position.y / 2, 0);
+	switch (type) {
+		case 'Tree':
+			return new THREE.Vector3(0, position.y / 2, 0);
+		case 'roundabout':
+			return new THREE.Vector3(0, 0, 0);
+		default:
+			return new THREE.Vector3(0, 0, 0);
+	}
 }
 
 class EnvironmentFactory {

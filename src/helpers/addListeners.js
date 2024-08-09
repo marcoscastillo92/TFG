@@ -43,7 +43,11 @@ function resetSelectedObject() {
 }
 
 function selectObject(object) {
-	if (!object) return;
+	if (
+		!object ||
+		(object && object.customType !== 'Road' && !object.isDraggable)
+	)
+		return;
 	resetSelectedObject();
 	selectedObject = object;
 	if (selectedObject.isDraggable) {
@@ -141,6 +145,9 @@ function addListeners(
 		Object.values(ROAD_TEXTURES).forEach((filename) => {
 			const img = document.createElement('img');
 			img.src = `/assets/textures/${filename}.jpg`;
+			if (filename === 'roundabout') {
+				img.src = `/assets/environment_icons/${filename}.png`;
+			}
 			img.alt = filename;
 			img.dataset.type = 'road';
 			img.addEventListener('click', () => {
