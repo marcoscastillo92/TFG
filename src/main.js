@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import WebGL from 'three/addons/capabilities/WebGL.js';
-import addListeners from './helpers/addListeners.js';
 import { initScene } from './helpers/scene.js';
 
 let width = window.innerWidth;
@@ -28,8 +27,7 @@ window.addEventListener('resize', () => {
 	renderer.setSize(width, height);
 });
 
-initScene(scene, gridHelper);
-addListeners(scene, camera, gridHelper, renderer, controls);
+initScene(scene, gridHelper, camera, renderer, controls);
 
 function animate() {
 	requestAnimationFrame(animate);

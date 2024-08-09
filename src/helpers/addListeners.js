@@ -23,6 +23,7 @@ let gridHelper = null;
 let scene = null;
 let camera = null;
 let control = null;
+let renderer = null;
 let controlMode = 'translate';
 
 const NON_SELECTABLE_NAME_OBJECTS = ['ground'];
@@ -103,12 +104,13 @@ function addListeners(
 	mainScene,
 	mainCamera,
 	mainGridHelper,
-	renderer,
+	mainRenderer,
 	orbitControls
 ) {
 	scene = mainScene;
 	camera = mainCamera;
 	gridHelper = mainGridHelper;
+	renderer = mainRenderer;
 	control = new TransformControls(camera, renderer.domElement);
 	control.showY = false;
 	control.setMode(controlMode);
@@ -287,7 +289,7 @@ function loadScene() {
 		scene.clear();
 		reader.onload = (e) => {
 			const data = JSON.parse(e.target.result);
-			initScene(scene, gridHelper);
+			initScene(scene, gridHelper, camera, renderer, control);
 			data.forEach((item) => {
 				if (item.type !== 'Mesh') return;
 				switch (item.customType) {

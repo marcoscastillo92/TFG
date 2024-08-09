@@ -1,6 +1,7 @@
 import * as THREE from 'three';
+import addListeners from './addListeners.js';
 
-export function initScene(scene, gridHelper) {
+export function initScene(scene, gridHelper, camera, renderer, controls) {
 	const light = new THREE.AmbientLight(0xffffff, 1);
 	scene.add(light);
 	scene.add(gridHelper);
@@ -18,4 +19,5 @@ export function initScene(scene, gridHelper) {
 	plane.name = 'ground';
 	plane.customType = 'Ground';
 	scene.add(plane);
+	addListeners(scene, camera, gridHelper, renderer, controls);
 }
