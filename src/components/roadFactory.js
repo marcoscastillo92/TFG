@@ -29,7 +29,7 @@ function getRoundabout(textureSelected) {
 	const material = new THREE.MeshBasicMaterial({
 		map: texture
 	});
-	const cylinderMesh1 = new THREE.Mesh(
+	const roundabout = new THREE.Mesh(
 		new THREE.CylinderGeometry(3, 3, 1.02, 30, 1, false),
 		material
 	);
@@ -37,13 +37,11 @@ function getRoundabout(textureSelected) {
 		new THREE.CylinderGeometry(1, 1, 1.25, 30, 1, false),
 		new THREE.MeshBasicMaterial({ color: 'green' })
 	);
-	const roundabout = new THREE.Group();
-	roundabout.add(cylinderMesh1);
 	roundabout.add(cylinderMesh2);
 	roundabout.position.set(0, -0.45, 0);
 	roundabout.isDraggable = true;
-	roundabout.name = 'roundabout';
-	roundabout.customType = 'Roundabout';
+	roundabout.name = textureSelected;
+	roundabout.customType = 'Road';
 	return roundabout;
 }
 

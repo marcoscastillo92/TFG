@@ -273,9 +273,6 @@ function addListeners(
 		)
 			return;
 		let selected = object.object;
-		if (selected.parent?.parent?.isVehicle) {
-			selected = selected.parent.parent;
-		}
 		selectObject(selected);
 	});
 }
@@ -534,6 +531,7 @@ function addPanel() {
 		.onChange((value) => {
 			controlMode = value;
 			control.setMode(controlMode);
+			control.showY = value === 'rotate';
 		});
 	folder4.add(settings, 'Show grid').onChange(toggleGrid);
 	folder4.addColor(settings, 'Vehicle color').onChange(function (value) {
