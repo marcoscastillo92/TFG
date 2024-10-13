@@ -144,6 +144,14 @@ function addListeners(
 				selectObject(sign);
 				allowMovement = true;
 			});
+			img.addEventListener('dragend', () => {
+				const sign = SignFactory.createSign(filename);
+				sign.position.x = 0;
+				sign.position.y = 0;
+				scene.add(sign);
+				selectObject(sign);
+				allowMovement = true;
+			});
 			document.querySelector('#gallery').appendChild(img);
 		});
 		Object.values(ROAD_TEXTURES).forEach((filename) => {
@@ -160,6 +168,14 @@ function addListeners(
 				selectObject(road);
 				allowMovement = true;
 			});
+			img.addEventListener('dragend', () => {
+				const road = RoadFactory.createRoad(filename);
+				road.position.x = 0;
+				road.position.y = 0;
+				scene.add(road);
+				selectObject(road);
+				allowMovement = true;
+			});
 			document.querySelector('#gallery').appendChild(img);
 		});
 		Object.keys(VEHICLES).forEach((key) => {
@@ -169,6 +185,15 @@ function addListeners(
 			img.dataset.type = 'vehicle';
 			img.addEventListener('click', () => {
 				VehicleFactory.createVehicle(key).then((vehicle) => {
+					scene.add(vehicle);
+					selectObject(vehicle);
+					allowMovement = true;
+				});
+			});
+			img.addEventListener('dragend', () => {
+				VehicleFactory.createVehicle(key).then((vehicle) => {
+					vehicle.position.x = 0;
+					vehicle.position.z = 0;
 					scene.add(vehicle);
 					selectObject(vehicle);
 					allowMovement = true;
@@ -188,6 +213,15 @@ function addListeners(
 					allowMovement = true;
 				});
 			});
+			img.addEventListener('dragend', () => {
+				PeopleFactory.createPeople(key).then((people) => {
+					people.position.x = 0;
+					people.position.z = 0;
+					scene.add(people);
+					selectObject(people);
+					allowMovement = true;
+				});
+			});
 			document.querySelector('#gallery').appendChild(img);
 		});
 		Object.keys(ENVIRONMENT).forEach((key) => {
@@ -197,6 +231,15 @@ function addListeners(
 			img.dataset.type = 'environment';
 			img.addEventListener('click', () => {
 				EnvironmentFactory.createObject(key).then((object) => {
+					scene.add(object);
+					selectObject(object);
+					allowMovement = true;
+				});
+			});
+			img.addEventListener('dragend', () => {
+				EnvironmentFactory.createObject(key).then((object) => {
+					object.position.x = 0;
+					object.position.z = 0;
 					scene.add(object);
 					selectObject(object);
 					allowMovement = true;
