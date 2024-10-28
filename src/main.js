@@ -32,6 +32,7 @@ initScene(scene, gridHelper, camera, renderer, controls);
 function animate() {
 	requestAnimationFrame(animate);
 	controls.update();
+	camera.updateMatrixWorld();
 	renderer.render(scene, camera);
 }
 
