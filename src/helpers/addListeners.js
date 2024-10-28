@@ -18,6 +18,7 @@ let allowMovement = false;
 let movementStep = 0.5;
 let rotateStep = 45;
 let previousMaterialColor = '';
+let previousSelectedObject = null;
 let selectedObject = null;
 let gridHelper = null;
 let orbitControls = null;
@@ -41,6 +42,7 @@ function resetSelectedObject() {
 			selectedObject.material.opacity = 0.0;
 		}
 		selectedObject = null;
+		previousSelectedObject = null;
 	}
 }
 
@@ -50,6 +52,11 @@ function selectObject(object) {
 		(object && object.customType !== 'Road' && !object.isDraggable)
 	)
 		return;
+	if (previousSelectedObject && previousSelectedObject === object) {
+		toggleControlMode();
+	} else {
+		setControlMode('translate');
+	}
 	resetSelectedObject();
 	selectedObject = object;
 	if (selectedObject.isDraggable) {
@@ -60,6 +67,7 @@ function selectObject(object) {
 	if (object.isTransparent) {
 		object.material.opacity = 0.5;
 	}
+	previousSelectedObject = object;
 }
 
 function flipSelectedTexture() {
@@ -309,8 +317,6 @@ function addListeners(
 		raycaster.setFromCamera(mouse.clone(), camera);
 		const intersects = raycaster.intersectObjects(scene.children);
 
-		resetSelectedObject();
-
 		let object = intersects.find((object) => {
 			return object.object.type === 'Mesh';
 		});
@@ -483,6 +489,25 @@ function toggleGrid() {
 	gridHelper.visible = !gridHelper.visible;
 }
 
+function toggleControlMode() {
+	controlMode = control.mode === 'translate' ? 'rotate' : 'translate';
+	setControlMode(controlMode);
+	const select = document.querySelector('.lil-gui select');
+	for (let i = 0; i < select.options.length; i++) {
+		if (select.options[i].value === controlMode) {
+			select.options[i].selected = true;
+			break;
+		}
+	}
+	const event = new Event('change');
+	select.dispatchEvent(event);
+}
+
+function setControlMode(mode) {
+	control.setMode(mode);
+	control.showY = mode === 'rotate';
+}
+
 function addPanel() {
 	const panel = new GUI({ width: 310 });
 
@@ -526,7 +551,7 @@ function addPanel() {
 				camera.lookAt(0, 0, 0);
 			}
 		},
-		'Control mode': 'translate'
+		'Control mode': controlMode
 	};
 
 	folder1.add(settings, 'Load');
@@ -576,9 +601,7 @@ function addPanel() {
 	folder4
 		.add(settings, 'Control mode', ['translate', 'rotate'])
 		.onChange((value) => {
-			controlMode = value;
-			control.setMode(controlMode);
-			control.showY = value === 'rotate';
+			setControlMode(value);
 		});
 	folder4.add(settings, 'Show grid').onChange(toggleGrid);
 	folder4.addColor(settings, 'Vehicle color').onChange(function (value) {
