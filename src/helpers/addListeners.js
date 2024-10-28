@@ -491,7 +491,6 @@ function toggleGrid() {
 
 function toggleControlMode() {
 	controlMode = control.mode === 'translate' ? 'rotate' : 'translate';
-	setControlMode(controlMode);
 	const select = document.querySelector('.lil-gui select');
 	for (let i = 0; i < select.options.length; i++) {
 		if (select.options[i].value === controlMode) {
