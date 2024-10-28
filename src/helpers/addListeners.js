@@ -323,8 +323,10 @@ function addListeners(
 		if (
 			!object ||
 			(object && NON_SELECTABLE_NAME_OBJECTS.includes(object.object.name))
-		)
+		) {
+			resetSelectedObject();
 			return;
+		}
 		let selected = object.object;
 		selectObject(selected);
 	});
