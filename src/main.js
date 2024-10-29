@@ -33,6 +33,7 @@ function animate() {
 	requestAnimationFrame(animate);
 	controls.update();
 	camera.updateMatrixWorld();
+	scene.updateMatrixWorld();
 	renderer.render(scene, camera);
 }
 
